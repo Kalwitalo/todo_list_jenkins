@@ -1,12 +1,7 @@
 pipeline {
-  agent {
-    docker {
-      image 'jdk8'
-    }
-
-  }
+  agent any
   stages {
-    stage('') {
+    stage('error') {
       steps {
         echo 'Init project'
       }
