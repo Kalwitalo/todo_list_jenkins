@@ -1,14 +1,19 @@
 pipeline {
-  agent {
-    docker {
-      image 'maven'
-    }
+  agent any
 
-  }
   stages {
-    stage('') {
+    stage('Docker node test') {
+      agent {
+          docker {
+            // Set both label and image
+            label 'docker'
+            image 'nodejs'
+            args '--name docker-node' // list any args
+          }
+      }
       steps {
-        sh 'echo Hello world'
+          // Steps run in node:7-alpine docker container on docker slave
+          sh 'node --version'
       }
     }
 
