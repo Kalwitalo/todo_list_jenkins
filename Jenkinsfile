@@ -6,7 +6,7 @@ pipeline {
   stages {
     stage('Docker node test') {
       agent {
-          docker {
+          openshift {
             // Set both label and image
             label 'docker'
             image 'node:7-alpine'
