@@ -12,7 +12,7 @@ pipeline {
       }
       steps {
           // Steps run in node:7-alpine docker container on docker slave
-          sh 'node --version'
+          sh 'echo hello world'
       }
     }
 
