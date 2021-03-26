@@ -6,6 +6,7 @@ pipeline {
       agent {
           kubernetes {
             // Set both label and image
+            label 'openshift'
             cloud 'openshift'
           }
       }
