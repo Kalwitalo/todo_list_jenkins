@@ -1,11 +1,12 @@
 pipeline {
   agent any
-  stages {
-    stage('init') {
-      steps {
-        sh 'echo hello world'
+  node("openshift") {
+      stages {
+        stage('init') {
+          steps {
+            sh 'echo hello world'
+          }
+        }
       }
-    }
-
   }
 }
