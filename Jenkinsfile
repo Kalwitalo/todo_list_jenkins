@@ -7,8 +7,6 @@ pipeline {
           kubernetes {
             // Set both label and image
             cloud 'openshift'
-            image 'nodejs'
-            args '--name docker-node' // list any args
           }
       }
       steps {
