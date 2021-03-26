@@ -6,7 +6,7 @@ pipeline {
       agent {
           kubernetes {
             // Set both label and image
-            label 'openshift'
+            cloud 'openshift'
             image 'nodejs'
             args '--name docker-node' // list any args
           }
