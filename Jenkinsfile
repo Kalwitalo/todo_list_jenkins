@@ -7,7 +7,7 @@ pipeline {
           kubernetes {
             // Set both label and image
             label 'openshift'
-            image 'node:7-alpine'
+            image 'nodejs'
             args '--name docker-node' // list any args
           }
       }
