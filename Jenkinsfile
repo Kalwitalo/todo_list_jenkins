@@ -1,14 +1,12 @@
 pipeline {
-  agent {
-      label 'openshift'
-  }
+  agent any
 
   stages {
     stage('Docker node test') {
       agent {
-          openshift {
+          kubernetes {
             // Set both label and image
-            label 'docker'
+            label 'openshift'
             image 'node:7-alpine'
             args '--name docker-node' // list any args
           }
