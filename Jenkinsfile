@@ -3,7 +3,9 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'maven clean install -DskipTests=true'
+        container('maven') {
+            sh 'maven clean install -DskipTests=true'
+        }
       }
     }
 
