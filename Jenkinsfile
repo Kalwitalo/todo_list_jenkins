@@ -3,6 +3,7 @@ pipeline {
     kubernetes {
         cloud 'openshift'
         label 'test'
+        yamlFile 'jenkins/BuildPod.yaml'
     }
   }
   stages {
