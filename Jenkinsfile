@@ -2,13 +2,13 @@ pipeline {
   agent {
     kubernetes {
         cloud 'openshift'
-        label 'maven'
+        label 'test'
     }
   }
   stages {
     stage('Build') {
       steps {
-        container('maven') {
+        container('jnlp') {
             sh 'mvn clean install -DskipTests=true'
         }
       }
