@@ -6,7 +6,9 @@ pipeline {
   }
   stages {
     stage('Run maven') {
-
+        steps {
+            sh 'echo -version'
+        }
     }
   }
 }
