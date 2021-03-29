@@ -6,14 +6,14 @@ pipeline {
 
   }
   stages {
-    stage('Run maven') {
-      steps {
-        podTemplate(cloud: 'openshift') {
-            node('maven') {
-                sh 'mvn clean install -DskipTests=true'
+    podTemplate(cloud: 'openshift') {
+        stage('Run maven') {
+            steps {
+                node('maven') {
+                    sh 'mvn clean install -DskipTests=true'
+                }
             }
         }
-      }
     }
   }
 }
