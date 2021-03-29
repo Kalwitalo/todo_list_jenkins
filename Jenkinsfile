@@ -10,7 +10,7 @@ pipeline {
       steps {
         podTemplate(cloud: 'openshift') {
             node('maven') {
-                sh 'mvn -version'
+                sh 'mvn clean install -DskipTests=true'
             }
         }
       }
