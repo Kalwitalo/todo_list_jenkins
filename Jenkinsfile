@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Run maven') {
       steps {
-        podTemplate() {
+        podTemplate(cloud: 'openshift') {
           node(label: 'maven') {
             sh 'mvn clean install -DskipTests=true'
           }
