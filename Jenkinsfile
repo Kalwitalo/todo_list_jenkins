@@ -1,3 +1,4 @@
+node(label: 'maven') {
 pipeline {
   agent {
     kubernetes {
@@ -5,7 +6,6 @@ pipeline {
     }
   }
   stages {
-  node(label: 'maven') {
     stage('Run maven') {
       steps {
 
