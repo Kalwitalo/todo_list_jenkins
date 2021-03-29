@@ -1,14 +1,19 @@
 pipeline {
   agent {
     kubernetes {
-        cloud 'openshift'
+      cloud 'openshift'
     }
+
   }
   stages {
     stage('Run maven') {
-        steps {
-            sh 'echo -version'
+      steps {
+        podTemplate(cloud: 'openshift') {
+          sh 'echo -version'
         }
+
+      }
     }
+
   }
 }
