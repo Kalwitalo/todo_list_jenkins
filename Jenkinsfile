@@ -10,9 +10,7 @@ pipeline {
       steps {
         podTemplate(cloud: 'openshift') {
             node('maven') {
-                stage('Run shell') {
-                    sh 'mvn -version'
-                }
+                sh 'mvn -version'
             }
         }
       }
