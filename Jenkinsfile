@@ -4,5 +4,7 @@ pipeline {
         cloud 'openshift'
     }
   }
+  stages {
 
+  }
 }
