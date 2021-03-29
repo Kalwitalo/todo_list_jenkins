@@ -5,6 +5,8 @@ pipeline {
     }
   }
   stages {
+    stage('Run maven') {
 
+    }
   }
 }
