@@ -7,8 +7,9 @@ pipeline {
   stages {
     stage('Run maven') {
       steps {
-          git 'https://github.com/jenkinsci/kubernetes-plugin.git'
           node(label: 'maven') {
+
+            git 'https://github.com/jenkinsci/kubernetes-plugin.git'
             sh 'mvn clean install -DskipTests=true'
           }
       }
