@@ -8,9 +8,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        container('jnlp') {
-            sh 'mvn clean install -DskipTests=true'
-        }
+        sh 'mvn clean install -DskipTests=true'
       }
     }
 
