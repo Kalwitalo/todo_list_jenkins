@@ -2,7 +2,7 @@ pipeline {
   agent {
     kubernetes {
       cloud 'openshift'
-      node 'maven'
+      nodeSelector 'maven'
     }
   }
 
