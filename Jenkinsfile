@@ -4,13 +4,9 @@ pipeline {
       cloud 'openshift'
     }
   }
-  stages {
-    stage('Before All') {
-        steps {
-            sh 'ls -lu'
-            sh 'mvn clean install -DskipTests=true'
-        }
-    }
 
+  node(label: 'maven') {
+    sh 'ls -lu'
   }
+
 }
