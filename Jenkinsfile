@@ -2,13 +2,19 @@ pipeline {
   agent {
     kubernetes {
       cloud 'openshift'
+      node 'maven'
     }
   }
 
   node(label: 'maven') {
-    stage("One"){
-        sh 'ls -lu'
-    }
   }
+  stages {
+    stage('Before All') {
+        steps {
+            sh 'ls -lu'
+            sh 'mvn clean install -DskipTests=true'
+        }
+    }
 
+  }
 }
