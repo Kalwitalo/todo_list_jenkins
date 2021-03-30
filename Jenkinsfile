@@ -1,14 +1,14 @@
 pipeline {
   agent any
+  tools {
+      maven 'Maven 3.3.9'
+      jdk 'jdk8'
+  }
   stages {
 
     stage('Run maven') {
       steps {
-          node(label: 'maven') {
-
-            git 'https://github.com/jenkinsci/kubernetes-plugin.git'
-            sh 'mvn clean install -DskipTests=true'
-          }
+        sh 'mvn clean install -DskipTests=true'
       }
     }
   }
