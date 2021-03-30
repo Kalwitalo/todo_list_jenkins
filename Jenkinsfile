@@ -6,8 +6,6 @@ pipeline {
     }
   }
 
-  node(label: 'maven') {
-  }
   stages {
     stage('Before All') {
         steps {
