@@ -6,7 +6,9 @@ pipeline {
   }
 
   node(label: 'maven') {
-    sh 'ls -lu'
+    stage("One"){
+        sh 'ls -lu'
+    }
   }
 
 }
