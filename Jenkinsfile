@@ -11,6 +11,11 @@ pipeline {
       parallel {
         stage('Build Maven') {
           steps {
+              checkout scm
+          }
+        }
+        stage('Build Maven') {
+          steps {
             sh 'mvn clean install -DskipTests=true'
           }
         }
