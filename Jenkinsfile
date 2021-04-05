@@ -88,7 +88,7 @@ pipeline {
         stage('Approval to Stage') {
             steps {
                 timeout(time: 30, unit: 'DAYS') {
-                    input message: "Start first rollout ?"
+                    input message: "Would you like to approval this for stage?"
                 }
             }
         }

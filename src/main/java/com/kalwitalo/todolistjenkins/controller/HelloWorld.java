@@ -18,4 +18,9 @@ public class HelloWorld {
     public String helloWorldWithMessage(@PathVariable String message) {
         return "Hello World " + message;
     }
+
+    @GetMapping("/laerte")
+    public String helloWorldLaerte() {
+        return "Hello World Laerte";
+    }
 }
