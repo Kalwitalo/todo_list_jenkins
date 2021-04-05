@@ -3,17 +3,14 @@ pipeline {
   stages {
     stage('Allocate Node Maven') {
       steps {
-        node(label: 'maven')
+        node(label: 'maven') {
+            checkout scm
+        }
       }
     }
 
     stage('Process') {
       parallel {
-        stage('Build Maven') {
-          steps {
-              checkout scm
-          }
-        }
         stage('Build Maven') {
           steps {
             sh 'mvn clean install -DskipTests=true'
