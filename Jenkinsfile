@@ -7,7 +7,7 @@ pipeline {
     stages {
         stage('Run maven') {
             steps {
-                podTemplate(agent: 'openshift') {
+                podTemplate(cloud: 'openshift') {
                     node(label: 'maven') {
                         git 'https://github.com/jenkinsci/kubernetes-plugin.git'
                         sh 'mvn clean install -DskipTests=true'
