@@ -14,8 +14,8 @@ public class HelloWorld {
         return "Hello World";
     }
 
-    @GetMapping("#{message}")
-    public String helloWorld(@PathVariable  String message) {
+    @GetMapping("{message}")
+    public String helloWorldWithMessage(@PathVariable String message) {
         return "Hello World " + message;
     }
 }
