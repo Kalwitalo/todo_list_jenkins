@@ -87,4 +87,7 @@ pipeline {
     }
 
   }
+  environment {
+    projectName = 'todolist'
+  }
 }
