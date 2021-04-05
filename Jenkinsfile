@@ -1,6 +1,8 @@
 pipeline {
-    kubernetes {
-        cloud 'openshift'
+    agent {
+        kubernetes {
+            cloud 'openshift'
+        }
     }
     stage('Run maven') {
         steps {
