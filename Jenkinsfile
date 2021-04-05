@@ -12,9 +12,15 @@ pipeline {
             }
         }
 
-        stage('Publish') {
+        stage('preamble') {
             steps {
-                sh 'echo \'Publishing\''
+                script {
+                    openshift.withCluster() {
+                        openshift.withProject() {
+                            echo "Using project: ${openshift.project()}"
+                        }
+                    }
+                }
             }
         }
 
