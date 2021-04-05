@@ -7,14 +7,6 @@ pipeline {
     }
     stages {
 
-        stage('approval') {
-            steps {
-                timeout(time: 30, unit: 'DAYS') {
-                    input message: "Start first rollout ?"
-                }
-            }
-        }
-
         stage('Build') {
             steps {
                 sh 'mvn clean install -DskipTests=true'
@@ -93,6 +85,39 @@ pipeline {
             }
         }
 
+        stage('Approval to Stage') {
+            steps {
+                timeout(time: 30, unit: 'DAYS') {
+                    input message: "Start first rollout ?"
+                }
+            }
+        }
+
+        stage('Promote STAGE') {
+            steps {
+                script {
+                    openshift.withCluster() {
+                        openshift.tag("${appName}:dev", "${appName}:stage")
+                    }
+                }
+            }
+        }
+        stage('Create STAGE') {
+            when {
+                expression {
+                    openshift.withCluster() {
+                        return !openshift.selector('dc', '${appName}-stage').exists()
+                    }
+                }
+            }
+            steps {
+                script {
+                    openshift.withCluster() {
+                        openshift.newApp("${appName}:stage", "--name=${appName}-stage").narrow('svc').expose()
+                    }
+                }
+            }
+        }
     }
     environment {
         appName = 'todolist'
