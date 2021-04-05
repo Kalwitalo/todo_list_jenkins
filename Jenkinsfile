@@ -1,5 +1,5 @@
+def projectName = "TodoList"
 pipeline {
-    def projectName = "TodoList"
     agent {
         node {
             label 'maven'
