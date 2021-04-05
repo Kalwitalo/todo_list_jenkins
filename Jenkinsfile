@@ -10,8 +10,5 @@ pipeline {
                 }
             }
         }
-        stage('Publish') {
-            sh 'echo Publishing'
-        }
     }
 }
