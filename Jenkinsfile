@@ -7,11 +7,11 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                node(label: 'maven') {
-                    checkout scm
-                    sh 'mvn clean install -DskipTests=true'
-                    archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
-                }
+
+                checkout scm
+                sh 'mvn clean install -DskipTests=true'
+                archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
+
 
             }
         }
