@@ -1,30 +1,17 @@
 pipeline {
-  agent any
-  stages {
-    stage('Allocate Node Maven') {
-      steps {
-        node(label: 'maven') {
-            checkout scm
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                node(label: 'maven') {
+                    checkout scm
+                    sh 'mvn clean install -DskipTests=true'
+                    archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
+                }
+            }
         }
-      }
+        stage('Publish') {
+            sh 'echo Publishing'
+        }
     }
-
-    stage('Process') {
-      parallel {
-        stage('Build Maven') {
-          steps {
-            sh 'mvn clean install -DskipTests=true'
-          }
-        }
-
-        stage('Arquivar Artefatos') {
-          steps {
-            archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
-          }
-        }
-
-      }
-    }
-
-  }
 }
