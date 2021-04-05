@@ -14,15 +14,31 @@ pipeline {
     }
 
     stage('Preamble') {
+      when {
+        expression {
+          openshift.withCluster() {
+            return !openshift.selector("project", "${projectOpenshiftName}").exists()
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+            openshift.newProject("${projectOpenshiftName}")
+          }
+        }
+      }
+    }
+    
+    stage('Check Project') {
       steps {
         script {
           openshift.withCluster() {
             openshift.withProject() {
-              echo "Using project: ${openshift.project()}"
+              echo "Using project: ${openshift.project()} in cluster ${openshift.cluster()}"
             }
           }
         }
-
       }
     }
 
@@ -30,15 +46,14 @@ pipeline {
       when {
         expression {
           openshift.withCluster() {
-            return !openshift.selector("bc", "${projectName}").exists()
+            return !openshift.selector("bc", "${appName}").exists()
           }
         }
-
       }
       steps {
         script {
           openshift.withCluster() {
-            openshift.newBuild("--name=${projectName}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
+            openshift.newBuild("--name=${appName}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
           }
         }
 
@@ -49,7 +64,7 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            openshift.selector("bc", "${projectName}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
+            openshift.selector("bc", "${appName}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
           }
         }
 
@@ -60,7 +75,7 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            openshift.tag("${projectName}:latest", "${projectName}:dev")
+            openshift.tag("${appName}:latest", "${appName}:dev")
           }
         }
 
@@ -71,7 +86,7 @@ pipeline {
       when {
         expression {
           openshift.withCluster() {
-            return !openshift.selector("dc", "${projectName}-dev").exists()
+            return !openshift.selector("dc", "${appName}-dev").exists()
           }
         }
 
@@ -79,7 +94,7 @@ pipeline {
       steps {
         script {
           openshift.withCluster() {
-            openshift.newApp("${projectName}:latest", "--name=${projectName}-dev").narrow('svc').expose()
+            openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
           }
         }
 
@@ -88,6 +103,7 @@ pipeline {
 
   }
   environment {
-    projectName = 'todolist'
+    appName = 'todolist'
+    projectOpenshiftName = 'kalwitalo'
   }
 }
