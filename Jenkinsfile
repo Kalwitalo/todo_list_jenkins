@@ -6,27 +6,17 @@ pipeline {
 
   }
   stages {
+
+    stage('approval') {
+      timeout(time: 30, unit: 'DAYS') {
+        input message: "Start first rollout ?"
+      }
+    }
+
     stage('Build') {
       steps {
         sh 'mvn clean install -DskipTests=true'
         archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
-      }
-    }
-
-    stage('Preamble') {
-      when {
-        expression {
-          openshift.withCluster() {
-            return !openshift.selector("projects", "${projectOpenshiftName}").exists()
-          }
-        }
-      }
-      steps {
-        script {
-          openshift.withCluster() {
-            openshift.newProject("${projectOpenshiftName}")
-          }
-        }
       }
     }
     
