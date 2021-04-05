@@ -29,14 +29,14 @@ pipeline {
             when {
                 expression {
                     openshift.withCluster() {
-                        return !openshift.selector("bc", ${projectName}).exists()
+                        return !openshift.selector("bc", "${projectName}").exists()
                     }
                 }
             }
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.newBuild("--name=" + ${projectName}, "--image-stream=redhat-openjdk18-openshift", "--binary")
+                        openshift.newBuild("--name=${projectName}", "--image-stream=redhat-openjdk18-openshift", "--binary")
                     }
                 }
             }
@@ -46,7 +46,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.selector("bc", ${projectName}).startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
+                        openshift.selector("bc", "${projectName}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
                     }
                 }
             }
@@ -56,7 +56,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.tag(${projectName} + ":latest", ${projectName} + ":dev")
+                        openshift.tag("${projectName}:latest", "${projectName}:dev")
                     }
                 }
             }
@@ -66,14 +66,14 @@ pipeline {
             when {
                 expression {
                     openshift.withCluster() {
-                        return !openshift.selector('dc', ${projectName} + '-dev').exists()
+                        return !openshift.selector("dc", "${projectName}-dev").exists()
                     }
                 }
             }
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.newApp(${projectName}+":latest", "--name="+ ${projectName} + "-dev").narrow('svc').expose()
+                        openshift.newApp("${projectName}:latest", "--name=${projectName}-dev").narrow('svc').expose()
                     }
                 }
             }
