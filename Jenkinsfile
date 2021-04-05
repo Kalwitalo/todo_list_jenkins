@@ -4,8 +4,8 @@ pipeline {
     stage('Run maven') {
       steps {
         node(label: 'maven') {
-          unstash '.'
-          sh 'mvn clean install -DskipTests=true'
+            checkout scm
+            sh 'mvn clean install -DskipTests=true'
         }
 
       }
