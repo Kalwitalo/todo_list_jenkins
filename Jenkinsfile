@@ -1,4 +1,4 @@
-def projectName = "TodoList"
+def projectName = "todolist"
 pipeline {
     agent {
         node {
