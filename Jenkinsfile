@@ -17,7 +17,7 @@ pipeline {
       when {
         expression {
           openshift.withCluster() {
-            return !openshift.selector("project", "${projectOpenshiftName}").exists()
+            return !openshift.selector("projects", "${projectOpenshiftName}").exists()
           }
         }
       }
