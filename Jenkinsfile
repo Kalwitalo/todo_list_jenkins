@@ -1,4 +1,3 @@
-def projectName = "TodoList"
 pipeline {
     agent {
         node {
@@ -6,6 +5,7 @@ pipeline {
         }
     }
     stages {
+        def projectName = "TodoList"
         stage('Build') {
             steps {
                 sh 'mvn clean install -DskipTests=true'
