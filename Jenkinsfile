@@ -1,26 +1,14 @@
 pipeline {
   agent {
-    docker {
-      image 'maven'
-    }
-
+      dockerfile true
   }
   stages {
+
     stage('Run maven') {
       steps {
-        sh 'mvn clean install -DskipTests=true'
+        sh 'echo Hello World'
       }
     }
-
-  }
-  tools {
-    maven 'maven'
-    jdk 'jdk8'
-  }
-  post {
-    always {
-      archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
-    }
-
   }
 }
+
