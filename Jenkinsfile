@@ -20,10 +20,6 @@ pipeline {
             }
         }
 
-        stage("Run Dev") {
-
-            parallel {
-
         stage('Check Project') {
             steps {
                 script {
@@ -109,8 +105,6 @@ pipeline {
                     }
                 }
             }
-        }
-        }
         }
 
 
