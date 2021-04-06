@@ -91,7 +91,7 @@ pipeline {
                 office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
                     message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
                              "<br>Duração total do pipeline: ${currentBuild.durationString}",
-                    status: "[https://img.shields.io/badge/Build-Sucesso-green](https://img.shields.io/badge/Build-Sucesso-green)",
+                    status: "![Sucesso][https://img.shields.io/badge/Build-Sucesso-green](https://img.shields.io/badge/Build-Sucesso-green)",
                     color: "#99C712"
             }
         }
@@ -137,18 +137,10 @@ pipeline {
                 office365ConnectorSend "${office365WebhookUrl}",
                     message: "A Aplicação ${JOB_NAME} - ${BUILD_DISPLAY_NAME} sofreu uma falha durante o processo de build."+
                              "<br>Duração total do pipeline: ${currentBuild.durationString}",
-                    status: "[![Build: Falhou](https://img.shields.io/badge/Build-Falhou-red)]",
+                    status: "Falhou",
                     color: "#DC6650"
             }
         }
-    }
-
-    options {
-        office365ConnectorWebhooks([[
-                    startNotification: true,
-                        url: "${office365WebhookUrl}"
-            ]]
-        )
     }
 
     environment {
