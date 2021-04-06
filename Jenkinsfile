@@ -31,7 +31,6 @@ pipeline {
                 }
             }
         }
-        parallel {
         stage('Deploy to Dev') {
             when {
                 branch 'master'
@@ -149,7 +148,6 @@ pipeline {
                     }
                 }
             }
-        }
         }
     }
 
