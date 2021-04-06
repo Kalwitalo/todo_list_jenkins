@@ -33,14 +33,15 @@ pipeline {
         }
 
         stage('Create Image Builder') {
-            when {
-                expression {
-                    openshift.withCluster() {
-                        return !openshift.selector("bc", "${appName}").exists()
+
+            steps {
+                when {
+                    expression {
+                        openshift.withCluster() {
+                            return !openshift.selector("bc", "${appName}").exists()
+                        }
                     }
                 }
-            }
-            steps {
                 script {
                     openshift.withCluster() {
                         openshift.newBuild("--name=${appName}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
