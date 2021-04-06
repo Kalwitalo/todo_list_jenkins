@@ -25,31 +25,27 @@ pipeline {
                 }
             }
         }
-        stage('Create Image Builder') {
-            when {
-                branch 'development'
-            }
 
-        stage('Create Image Builder') {
-            when {
-                expression {
-                    openshift.withCluster() {
-                        return !openshift.selector("bc", "${appName}").exists()
+        stage('Delivery for Dev') {
+
+            steps('Create Image Builder') {
+                when {
+                    expression {
+                        openshift.withCluster() {
+                            return !openshift.selector("bc", "${appName}").exists()
+                        }
                     }
                 }
-            }
-            steps {
-                script {
-                    openshift.withCluster() {
-                        openshift.newBuild("--name=${appName}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
+                steps {
+                    script {
+                        openshift.withCluster() {
+                            openshift.newBuild("--name=${appName}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
+                        }
                     }
+
                 }
-
             }
-        }
-
-        stage('Build Image') {
-            steps {
+            steps('Build Image') {
                 script {
                     openshift.withCluster() {
                         openshift.selector("bc", "${appName}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
@@ -57,10 +53,7 @@ pipeline {
                 }
 
             }
-        }
-
-        stage('Promote to DEV') {
-            steps {
+            steps('Promote to DEV') {
                 script {
                     openshift.withCluster() {
                         openshift.tag("${appName}:latest", "${appName}:dev")
@@ -68,28 +61,26 @@ pipeline {
                 }
 
             }
-        }
-
-        stage('Create DEV') {
-            when {
-                expression {
-                    openshift.withCluster() {
-                        return !openshift.selector("dc", "${appName}-dev").exists()
+            steps('Create DEV') {
+                when {
+                    expression {
+                        openshift.withCluster() {
+                            return !openshift.selector("dc", "${appName}-dev").exists()
+                        }
                     }
-                }
 
-            }
-            steps {
-                script {
-                    openshift.withCluster() {
-                        openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
+                }
+                steps {
+                    script {
+                        openshift.withCluster() {
+                            openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
+                        }
                     }
-                }
 
+                }
             }
         }
 
-        }
 
 
         stage('Send message to Channel') {
