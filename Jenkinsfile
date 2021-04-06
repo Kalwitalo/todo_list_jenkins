@@ -117,7 +117,9 @@ pipeline {
                 branch 'production'
             }
 
-            input message: "Deploy this build to QA?"
+            input {
+                message: "Deploy this build to QA?"
+            }
 
             stages {
                 stage('Promote STAGE') {
