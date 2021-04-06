@@ -25,6 +25,10 @@ pipeline {
                 }
             }
         }
+        stage('Create Image Builder') {
+            when {
+                branch 'development'
+            }
 
         stage('Create Image Builder') {
             when {
@@ -85,13 +89,15 @@ pipeline {
             }
         }
 
+        }
+
 
         stage('Send message to Channel') {
             steps {
                 office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
                     message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
                              "<br>Duração total do pipeline: ${currentBuild.durationString}",
-                    status: "[![Sucesso][https://img.shields.io/badge/Build-Sucesso-green](https://img.shields.io/badge/Build-Sucesso-green)]",
+                    status: "Sucesso",
                     color: "#99C712"
             }
         }
