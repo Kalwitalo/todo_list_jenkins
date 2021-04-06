@@ -32,7 +32,7 @@ pipeline {
             }
         }
 
-        stage("Teste") {
+        stages {
             stage('Create Image Builder') {
                 when {
                     expression {
