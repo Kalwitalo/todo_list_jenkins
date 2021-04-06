@@ -31,11 +31,11 @@ pipeline {
                 }
             }
         }
+        parallel {
         stage('Deploy to Dev') {
             when {
                 branch 'master'
             }
-            parallel {
             stages {
                 stage('Create Image Builder') {
                     when {
@@ -96,7 +96,6 @@ pipeline {
                     }
                 }
             }
-            }
         }
 
 
@@ -150,6 +149,7 @@ pipeline {
                     }
                 }
             }
+        }
         }
     }
 
