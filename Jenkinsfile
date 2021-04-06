@@ -1,107 +1,46 @@
 pipeline {
-    agent {
-        node {
-            label 'maven'
-        }
-
-    }
+    agent any
     stages {
-
-        stage('Build') {
-            steps {
-                sh 'mvn clean package -DskipTests=true'
-                archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
+            stage('Non-Sequential Stage') {
+                steps {
+                    echo "On Non-Sequential Stage"
+                }
             }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-
-        stage('Check Project') {
-            steps {
-                script {
-                    openshift.withCluster() {
-                        openshift.withProject() {
-                            echo "Using project: ${openshift.project()} in cluster ${openshift.cluster()}"
+            stage('Sequential') {
+                agent {
+                    label 'for-sequential'
+                }
+                environment {
+                    FOR_SEQUENTIAL = "some-value"
+                }
+                stages {
+                    stage('In Sequential 1') {
+                        steps {
+                            echo "In Sequential 1"
+                        }
+                    }
+                    stage('In Sequential 2') {
+                        steps {
+                            echo "In Sequential 2"
+                        }
+                    }
+                    stage('Parallel In Sequential') {
+                        parallel {
+                            stage('In Parallel 1') {
+                                steps {
+                                    echo "In Parallel 1"
+                                }
+                            }
+                            stage('In Parallel 2') {
+                                steps {
+                                    echo "In Parallel 2"
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-        stage('Tests') {
-              parallel {
-                stage('Web Tests') {
-                  agent {
-                    kubernetes {
-                      label 'nodejs-testcafe'
-                      yaml testPodYaml
-                    }
-                  }
-                  stages {
-                    stage('Nodejs Setup') {
-                      steps {
-                        checkout scm
-                        container('nodejs') {
-                          sh '''
-                            npm install express
-                            npm install pug --save
-                            node ./hello.js &
-                          '''
-                        }
-                      }
-                    }
-                    stage('Testcafe') {
-                      steps {
-                        container('testcafe') {
-                          sh '/opt/testcafe/docker/testcafe-docker.sh "chromium --no-sandbox" tests/*.js -r xunit:res.xml'
-                        }
-                      }
-                    }
-                  }
-                  post {
-                    success {
-                      stash name: 'app', includes: '*.js, public/**, views/*, Dockerfile'
-                    }
-                    always {
-                      junit 'res.xml'
-                    }
-                  }
-                }
-                stage('Load Test') {
-                  agent {
-                    kubernetes {
-                      label 'nodejs-ab'
-                      yaml loadTestPodYaml
-                    }
-                  }
-                  stages {
-                    stage('Nodejs Setup') {
-                      steps {
-                        checkout scm
-                        container('nodejs') {
-                          sh '''
-                            npm install express
-                            npm install pug --save
-                            node ./hello.js &
-                          '''
-                        }
-                      }
-                    }
-                    stage('Apache Benchmark') {
-                      steps {
-                        container('apache-benchmark') {
-                          sh 'ab -n 10 -c 4 -s 5 http://localhost:8080/'
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-    }
 
     post {
         failure {
