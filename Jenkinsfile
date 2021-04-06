@@ -91,7 +91,7 @@ pipeline {
                 office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
                     message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
                              "<br>Duração total do pipeline: ${currentBuild.durationString}",
-                    status: "![Sucesso][https://img.shields.io/badge/Build-Sucesso-green](https://img.shields.io/badge/Build-Sucesso-green)",
+                    status: "[![Sucesso][https://img.shields.io/badge/Build-Sucesso-green](https://img.shields.io/badge/Build-Sucesso-green)]",
                     color: "#99C712"
             }
         }
