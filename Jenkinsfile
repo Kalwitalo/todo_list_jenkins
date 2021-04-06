@@ -89,8 +89,8 @@ pipeline {
         stage('Send message to Channel') {
             steps {
                 office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
-                    message: "A Aplicação ${JOB_NAME} - ${BUILD_DISPLAY_NAME} foi [implantada](https://uat.green.biz) em ambiente de desenvolvimento
-                             <br>Duração total do pipeline: ${currentBuild.durationString}"
+                    message: "A Aplicação ${JOB_NAME} - ${BUILD_DISPLAY_NAME} foi [implantada](https://uat.green.biz) em ambiente de desenvolvimento"+
+                             "<br>Duração total do pipeline: ${currentBuild.durationString}"
                     status: "Pipeline Status",
                     color: "#0000FF"
             }
