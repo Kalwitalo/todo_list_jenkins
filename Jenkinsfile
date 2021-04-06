@@ -112,45 +112,7 @@ pipeline {
 
 
 
-        stage('Deploy to Prod') {
-            when {
-                beforeInput true
-                branch 'production'
-            }
 
-            input {
-                message "Deploy to production?"
-                id "simple-input"
-            }
-
-            stages {
-                stage('Promote STAGE') {
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.tag("${appName}:dev", "${appName}:stage")
-                            }
-                        }
-                    }
-                }
-                stage('Create STAGE') {
-                    when {
-                        expression {
-                            openshift.withCluster() {
-                                return !openshift.selector('dc', '${appName}-stage').exists()
-                            }
-                        }
-                    }
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.newApp("${appName}:stage", "--name=${appName}-stage").narrow('svc').expose()
-                            }
-                        }
-                    }
-                }
-            }
-        }
         }
         }
     }
