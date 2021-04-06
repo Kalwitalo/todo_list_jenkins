@@ -99,7 +99,7 @@ pipeline {
         stage('Approval to Stage') {
             steps {
                 timeout(time: 30, unit: 'DAYS') {
-                    input message: "Would you like to approval this for stage?"
+                    input message: "Deploy this build to QA?"
                 }
             }
         }
