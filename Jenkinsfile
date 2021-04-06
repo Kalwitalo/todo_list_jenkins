@@ -31,78 +31,74 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Dev') {
-            when {
-                branch 'master'
+
+        stage("Teste") {
+            stage('Create Image Builder') {
+                when {
+                    expression {
+                        openshift.withCluster() {
+                            return !openshift.selector("bc", "${appName}").exists()
+                        }
+                    }
+                }
+                steps {
+                    script {
+                        openshift.withCluster() {
+                            openshift.newBuild("--name=${appName}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
+                        }
+                    }
+
+                }
             }
-            stages {
-                stage('Create Image Builder') {
-                    when {
-                        expression {
-                            openshift.withCluster() {
-                                return !openshift.selector("bc", "${appName}").exists()
-                            }
-                        }
-                    }
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.newBuild("--name=${appName}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
-                            }
-                        }
 
+            stage('Build Image') {
+                steps {
+                    script {
+                        openshift.withCluster() {
+                            openshift.selector("bc", "${appName}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
+                        }
                     }
+
                 }
+            }
 
-                stage('Build Image') {
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.selector("bc", "${appName}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
-                            }
+            stage('Promote to DEV') {
+                steps {
+                    script {
+                        openshift.withCluster() {
+                            openshift.tag("${appName}:latest", "${appName}:dev")
                         }
-
                     }
+
                 }
+            }
 
-                stage('Promote to DEV') {
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.tag("${appName}:latest", "${appName}:dev")
-                            }
+            stage('Create DEV') {
+                when {
+                    expression {
+                        openshift.withCluster() {
+                            return !openshift.selector("dc", "${appName}-dev").exists()
                         }
-
                     }
+
                 }
-
-                stage('Create DEV') {
-                    when {
-                        expression {
-                            openshift.withCluster() {
-                                return !openshift.selector("dc", "${appName}-dev").exists()
-                            }
+                steps {
+                    script {
+                        openshift.withCluster() {
+                            openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
                         }
-
                     }
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
-                            }
-                        }
 
-                    }
                 }
+            }
 
-                stage('Send message to Channel') {
-                    steps {
-                        office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
-                            message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
-                                     "<br>Duração total do pipeline: ${currentBuild.durationString}",
-                            status: "Sucesso",
-                            color: "#99C712"
-                    }
+            stage('Send message to Channel') {
+                steps {
+                    office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
+                        message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
+                                 "<br>Duração total do pipeline: ${currentBuild.durationString}",
+                        status: "Sucesso",
+                        color: "#99C712"
                 }
             }
         }
