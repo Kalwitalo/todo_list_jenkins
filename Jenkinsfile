@@ -118,7 +118,8 @@ pipeline {
             }
 
             input {
-                message: "Deploy this build to QA?"
+                message "Deploy to production?"
+                id "simple-input"
             }
 
             stages {
