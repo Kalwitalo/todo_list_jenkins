@@ -31,67 +31,69 @@ pipeline {
                 }
             }
         }
-        stages('Deploy to Dev') {
+        stage('Deploy to Dev') {
             when {
                 branch 'master'
             }
+            stages {
 
-            stage('Create Image Builder') {
-                when {
-                    expression {
-                        openshift.withCluster() {
-                            return !openshift.selector("bc", "${appName}").exists()
+                stage('Create Image Builder') {
+                    when {
+                        expression {
+                            openshift.withCluster() {
+                                return !openshift.selector("bc", "${appName}").exists()
+                            }
                         }
+                    }
+                    steps {
+                        script {
+                            openshift.withCluster() {
+                                openshift.newBuild("--name=${appName}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
+                            }
+                        }
+
                     }
                 }
-                steps {
-                    script {
-                        openshift.withCluster() {
-                            openshift.newBuild("--name=${appName}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
-                        }
-                    }
 
+                stage('Build Image') {
+                    steps {
+                        script {
+                            openshift.withCluster() {
+                                openshift.selector("bc", "${appName}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
+                            }
+                        }
+
+                    }
                 }
-            }
 
-            stage('Build Image') {
-                steps {
-                    script {
-                        openshift.withCluster() {
-                            openshift.selector("bc", "${appName}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
+                stage('Promote to DEV') {
+                    steps {
+                        script {
+                            openshift.withCluster() {
+                                openshift.tag("${appName}:latest", "${appName}:dev")
+                            }
                         }
-                    }
 
+                    }
                 }
-            }
 
-            stage('Promote to DEV') {
-                steps {
-                    script {
-                        openshift.withCluster() {
-                            openshift.tag("${appName}:latest", "${appName}:dev")
+                stage('Create DEV') {
+                    when {
+                        expression {
+                            openshift.withCluster() {
+                                return !openshift.selector("dc", "${appName}-dev").exists()
+                            }
                         }
+
                     }
-
-                }
-            }
-
-            stage('Create DEV') {
-                when {
-                    expression {
-                        openshift.withCluster() {
-                            return !openshift.selector("dc", "${appName}-dev").exists()
+                    steps {
+                        script {
+                            openshift.withCluster() {
+                                openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
+                            }
                         }
-                    }
 
-                }
-                steps {
-                    script {
-                        openshift.withCluster() {
-                            openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
-                        }
                     }
-
                 }
             }
         }
@@ -109,7 +111,7 @@ pipeline {
 
 
 
-        stages('Deploy to Prod') {
+        stage('Deploy to Prod') {
             when {
                 beforeInput true
                 branch 'production'
@@ -117,27 +119,29 @@ pipeline {
 
             input message: "Deploy this build to QA?"
 
-            stage('Promote STAGE') {
-                steps {
-                    script {
-                        openshift.withCluster() {
-                            openshift.tag("${appName}:dev", "${appName}:stage")
+            stages {
+                stage('Promote STAGE') {
+                    steps {
+                        script {
+                            openshift.withCluster() {
+                                openshift.tag("${appName}:dev", "${appName}:stage")
+                            }
                         }
                     }
                 }
-            }
-            stage('Create STAGE') {
-                when {
-                    expression {
-                        openshift.withCluster() {
-                            return !openshift.selector('dc', '${appName}-stage').exists()
+                stage('Create STAGE') {
+                    when {
+                        expression {
+                            openshift.withCluster() {
+                                return !openshift.selector('dc', '${appName}-stage').exists()
+                            }
                         }
                     }
-                }
-                steps {
-                    script {
-                        openshift.withCluster() {
-                            openshift.newApp("${appName}:stage", "--name=${appName}-stage").narrow('svc').expose()
+                    steps {
+                        script {
+                            openshift.withCluster() {
+                                openshift.newApp("${appName}:stage", "--name=${appName}-stage").narrow('svc').expose()
+                            }
                         }
                     }
                 }
