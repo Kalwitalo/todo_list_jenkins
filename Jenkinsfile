@@ -31,90 +31,76 @@ pipeline {
                 }
             }
         }
-        stage('Deploy\'s') {
-        parallel {
-        stage('Deploy to Dev') {
-            when {
-                branch 'master'
+        stage('Tests') {
+              parallel {
+                stage('Web Tests') {
+                  agent {
+                    kubernetes {
+                      label 'nodejs-testcafe'
+                      yaml testPodYaml
+                    }
+                  }
+                  stages {
+                    stage('Nodejs Setup') {
+                      steps {
+                        checkout scm
+                        container('nodejs') {
+                          sh '''
+                            npm install express
+                            npm install pug --save
+                            node ./hello.js &
+                          '''
+                        }
+                      }
+                    }
+                    stage('Testcafe') {
+                      steps {
+                        container('testcafe') {
+                          sh '/opt/testcafe/docker/testcafe-docker.sh "chromium --no-sandbox" tests/*.js -r xunit:res.xml'
+                        }
+                      }
+                    }
+                  }
+                  post {
+                    success {
+                      stash name: 'app', includes: '*.js, public/**, views/*, Dockerfile'
+                    }
+                    always {
+                      junit 'res.xml'
+                    }
+                  }
+                }
+                stage('Load Test') {
+                  agent {
+                    kubernetes {
+                      label 'nodejs-ab'
+                      yaml loadTestPodYaml
+                    }
+                  }
+                  stages {
+                    stage('Nodejs Setup') {
+                      steps {
+                        checkout scm
+                        container('nodejs') {
+                          sh '''
+                            npm install express
+                            npm install pug --save
+                            node ./hello.js &
+                          '''
+                        }
+                      }
+                    }
+                    stage('Apache Benchmark') {
+                      steps {
+                        container('apache-benchmark') {
+                          sh 'ab -n 10 -c 4 -s 5 http://localhost:8080/'
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
-            stages {
-                stage('Create Image Builder') {
-                    when {
-                        expression {
-                            openshift.withCluster() {
-                                return !openshift.selector("bc", "${appName}").exists()
-                            }
-                        }
-                    }
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.newBuild("--name=${appName}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
-                            }
-                        }
-
-                    }
-                }
-
-                stage('Build Image') {
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.selector("bc", "${appName}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
-                            }
-                        }
-
-                    }
-                }
-
-                stage('Promote to DEV') {
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.tag("${appName}:latest", "${appName}:dev")
-                            }
-                        }
-
-                    }
-                }
-
-                stage('Create DEV') {
-                    when {
-                        expression {
-                            openshift.withCluster() {
-                                return !openshift.selector("dc", "${appName}-dev").exists()
-                            }
-                        }
-
-                    }
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
-
-
-        stage('Send message to Channel') {
-            steps {
-                office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
-                    message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
-                             "<br>Duração total do pipeline: ${currentBuild.durationString}",
-                    status: "Sucesso",
-                    color: "#99C712"
-            }
-        }
-
-
-
-
-        }
-        }
     }
 
     post {
