@@ -9,7 +9,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean package -DskipTests=true -Djar.finalName=${appName}'
+                sh 'mvn clean package -DskipTests=true'
                 archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
             }
         }
@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").startBuild("--from-file=target/${appName}.jar", "--wait")
+                        openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").startBuild("--from-file=target/todo-list-jenkins-${POM_VERSION}.jar", "--wait")
                     }
                 }
 
