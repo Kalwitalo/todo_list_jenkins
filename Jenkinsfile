@@ -62,6 +62,9 @@ pipeline {
         }
 
         stage('Deploy to Dev') {
+            when {
+                branch 'master'
+            }
 
             stages {
                 stage('Promote to DEV') {
