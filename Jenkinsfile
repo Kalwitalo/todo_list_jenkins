@@ -62,7 +62,7 @@ pipeline {
         }
 
         stage('Deploys') {
-            parallel {
+             parallel ([
                 stage('Deploy to Dev') {
 
                     when {
@@ -159,7 +159,7 @@ pipeline {
                             }
                         }
                     }
-                }
+                ]}
             }
         }
     }
