@@ -62,105 +62,32 @@ pipeline {
         }
 
         stage('Deploys') {
-             parallel ([
-                "Deploy to Dev": {
-
-                    when {
-                        beforeInput true
-                        branch 'master'
-                    }
-
-                    input {
-                        message "Deploy to Dev?"
-                        id "simple-input-d"
-                    }
-
-                    stages {
-
-                        stage('Promote to DEV') {
-                            steps {
-                                script {
-                                    openshift.withCluster() {
-                                        openshift.tag("${appName}:latest", "${appName}:dev")
-                                    }
-                                }
-
-                            }
-                        }
-
-                        stage('Create DEV') {
-                            when {
-                                expression {
-                                    openshift.withCluster() {
-                                        return !openshift.selector("dc", "${appName}-dev").exists()
-                                    }
-                                }
-
-                            }
-                            steps {
-                                script {
-                                    openshift.withCluster() {
-                                        openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
-                                    }
-                                }
-
-                            }
-                        }
-
-                        stage('Send message to Channel') {
-                            steps {
-                                office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
-                                    message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
-                                             "<br>Duração total do pipeline: ${currentBuild.durationString}",
-                                    status: "Sucesso",
-                                    color: "#99C712"
-                            }
-                        }
-                    }
+            parallel 'mac': {
+                stage("build") {
+                  echo "first one"
                 }
 
+                stage("test") {
+                  echo "second one"
+                }
 
+              }, 'linux': {
+                stage("build") {
+                  echo "first one"
+                }
 
-               "Deploy to Prod": {
-                    when {
-                        beforeInput true
-                        branch 'production'
-                    }
+                stage("test") {
+                  echo "second one"
+                }
+              }, 'win': {
+                stage("build") {
+                  echo "first one"
+                }
 
-                    input {
-                        message "Deploy to production?"
-                        id "simple-input"
-                    }
-
-                    stages {
-                        stage('Promote STAGE') {
-                            steps {
-                                script {
-                                    openshift.withCluster() {
-                                        openshift.tag("${appName}:dev", "${appName}:stage")
-                                    }
-                                }
-                            }
-                        }
-                        stage('Create STAGE') {
-                            when {
-                                expression {
-                                    openshift.withCluster() {
-                                        return !openshift.selector('dc', '${appName}-stage').exists()
-                                    }
-                                }
-                            }
-                            steps {
-                                script {
-                                    openshift.withCluster() {
-                                        openshift.newApp("${appName}:stage", "--name=${appName}-stage").narrow('svc').expose()
-                                    }
-                                }
-                            }
-                        }
-                    }
-                ]}
-            }
+                stage("test") {
+                  echo "second one"
+                }
+              }
         }
     }
 
