@@ -112,10 +112,21 @@ pipeline {
                 branch 'production'
             }
 
-            input {
-                message "Deploy to production?"
-                id "simple-input"
+            steps {
+                office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
+                    message: "Para aplicar a mudança em produção, acesse [Janela de 10 minutos]: ${JOB_URL}",
+                    status: "Alerta",
+                    color: "#FFB818"
+
+                timeout(time: 10, unit: 'MINUTES') {
+                    input {
+                        message "Deploy to production?"
+                        id "simple-input"
+                    }
+                }
             }
+
+
 
             stages {
                 stage('Promote STAGE') {
