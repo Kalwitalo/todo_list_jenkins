@@ -24,7 +24,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.withProject("${projectOpenshiftName}") {
+                        openshift.withProject() {
                             echo "Using project: ${openshift.project()} in cluster ${openshift.cluster()}"
                         }
                     }
@@ -36,7 +36,7 @@ pipeline {
             when {
                 expression {
                     openshift.withCluster() {
-                        openshift.withProject("${projectOpenshiftName}") {
+                        openshift.withProject() {
                             return !openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").exists()
                         }
                     }
@@ -45,7 +45,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.withProject("${projectOpenshiftName}") {
+                        openshift.withProject() {
                             openshift.newBuild("--name=${appName}-${env.BRANCH_NAME}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
                         }
                     }
@@ -58,7 +58,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.withProject("${projectOpenshiftName}") {
+                        openshift.withProject() {
                             openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
                         }
                     }
@@ -88,7 +88,7 @@ pipeline {
             when {
                 expression {
                     openshift.withCluster() {
-                        openshift.withProject("${projectOpenshiftName}") {
+                        openshift.withProject() {
                             return !openshift.selector("dc", "${appName}-${env.BRANCH_NAME}").exists()
                         }
                     }
@@ -98,7 +98,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.withProject("${projectOpenshiftName}") {
+                        openshift.withProject() {
                             openshift.newApp("${appName}-${env.BRANCH_NAME}:latest", "--name=${appName}-${env.BRANCH_NAME}").narrow('svc').expose()
                         }
                     }
