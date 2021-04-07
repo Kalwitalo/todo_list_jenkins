@@ -132,7 +132,7 @@ pipeline {
                     steps {
                         script {
                             openshift.withCluster() {
-                                openshift.tag("${appName}:dev", "${appName}:stage")
+                                openshift.tag("${appName}:dev", "${appName}:${env.BRANCH_NAME}")
                             }
                         }
                     }
@@ -141,14 +141,14 @@ pipeline {
                     when {
                         expression {
                             openshift.withCluster() {
-                                return !openshift.selector('dc', '${appName}-stage').exists()
+                                return !openshift.selector('dc', '${appName}-${env.BRANCH_NAME}').exists()
                             }
                         }
                     }
                     steps {
                         script {
                             openshift.withCluster() {
-                                openshift.newApp("${appName}:stage", "--name=${appName}-stage").narrow('svc').expose()
+                                openshift.newApp("${appName}:${env.BRANCH_NAME}", "--name=${appName}-${env.BRANCH_NAME}").narrow('svc').expose()
                             }
                         }
                     }
