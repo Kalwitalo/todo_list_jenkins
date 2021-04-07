@@ -64,43 +64,56 @@ pipeline {
         parallel {
             stage('Deploy to Dev') {
 
-                stage('Promote to DEV') {
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.tag("${appName}:latest", "${appName}:dev")
-                            }
-                        }
-
-                    }
+                when {
+                    beforeInput true
+                    branch 'master'
                 }
 
-                stage('Create DEV') {
-                    when {
-                        expression {
-                            openshift.withCluster() {
-                                return !openshift.selector("dc", "${appName}-dev").exists()
-                            }
-                        }
-
-                    }
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
-                            }
-                        }
-
-                    }
+                input {
+                    message "Deploy to Dev?"
+                    id "simple-input-d"
                 }
 
-                stage('Send message to Channel') {
-                    steps {
-                        office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
-                            message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
-                                     "<br>Duração total do pipeline: ${currentBuild.durationString}",
-                            status: "Sucesso",
-                            color: "#99C712"
+                stages {
+
+                    stage('Promote to DEV') {
+                        steps {
+                            script {
+                                openshift.withCluster() {
+                                    openshift.tag("${appName}:latest", "${appName}:dev")
+                                }
+                            }
+
+                        }
+                    }
+
+                    stage('Create DEV') {
+                        when {
+                            expression {
+                                openshift.withCluster() {
+                                    return !openshift.selector("dc", "${appName}-dev").exists()
+                                }
+                            }
+
+                        }
+                        steps {
+                            script {
+                                openshift.withCluster() {
+                                    openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
+                                }
+                            }
+
+                        }
+                    }
+
+                    stage('Send message to Channel') {
+                        steps {
+                            office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
+                                message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
+                                         "<br>Duração total do pipeline: ${currentBuild.durationString}",
+                                status: "Sucesso",
+                                color: "#99C712"
+                        }
                     }
                 }
             }
