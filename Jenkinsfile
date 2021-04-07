@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
+                        openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").startBuild("--from-file=target/${POM_DISPLAYNAME}.jar", "--wait")
                     }
                 }
 
