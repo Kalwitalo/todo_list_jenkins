@@ -24,8 +24,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.withProject() {
-                            openshift.selector("project", "todolist-test");
+                        openshift.withProject("${projectOpenshiftName}") {
                             echo "Using project: ${openshift.project()} in cluster ${openshift.cluster()}"
                         }
                     }
@@ -37,14 +36,18 @@ pipeline {
             when {
                 expression {
                     openshift.withCluster() {
-                        return !openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").exists()
+                        openshift.withProject("${projectOpenshiftName}") {
+                            return !openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").exists()
+                        }
                     }
                 }
             }
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.newBuild("--name=${appName}-${env.BRANCH_NAME}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
+                        openshift.withProject("${projectOpenshiftName}") {
+                            openshift.newBuild("--name=${appName}-${env.BRANCH_NAME}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
+                        }
                     }
                 }
 
@@ -55,7 +58,9 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
+                        openshift.withProject("${projectOpenshiftName}") {
+                            openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
+                        }
                     }
                 }
 
@@ -83,7 +88,9 @@ pipeline {
             when {
                 expression {
                     openshift.withCluster() {
-                        return !openshift.selector("dc", "${appName}-${env.BRANCH_NAME}").exists()
+                        openshift.withProject("${projectOpenshiftName}") {
+                            return !openshift.selector("dc", "${appName}-${env.BRANCH_NAME}").exists()
+                        }
                     }
                 }
 
@@ -91,7 +98,9 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.newApp("${appName}-${env.BRANCH_NAME}:latest", "--name=${appName}-${env.BRANCH_NAME}").narrow('svc').expose()
+                        openshift.withProject("${projectOpenshiftName}") {
+                            openshift.newApp("${appName}-${env.BRANCH_NAME}:latest", "--name=${appName}-${env.BRANCH_NAME}").narrow('svc').expose()
+                        }
                     }
                 }
 
@@ -123,7 +132,7 @@ pipeline {
 
     environment {
         appName = 'todolist'
-        projectOpenshiftName = 'kalwitalo'
+        projectOpenshiftName = 'todolist-test'
         office365WebhookUrl = 'https://techleadit.webhook.office.com/webhookb2/e9431669-990d-4cd1-95b5-095dd35512f3@c4ecbfec-df4a-4171-9e88-a56dff7d9839/JenkinsCI/f0725e283b9f4df19a45a1e42ef9f79a/d1568b67-4de9-4f2e-8fa4-a8ee1a59ef31'
     }
 }
