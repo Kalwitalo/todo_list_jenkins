@@ -61,95 +61,60 @@ pipeline {
             }
         }
 
-        stage('Deploy to Dev') {
-
-            stages {
-                stage('Promote to DEV') {
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.tag("${appName}:latest", "${appName}:dev")
-                            }
-                        }
-
-                    }
-                }
-
-                stage('Create DEV') {
-                    when {
-                        expression {
-                            openshift.withCluster() {
-                                return !openshift.selector("dc", "${appName}-dev").exists()
-                            }
-                        }
-
-                    }
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
-                            }
-                        }
-
-                    }
-                }
-
-                stage('Send message to Channel') {
-                    steps {
-                        office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
-                            message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
-                                     "<br>Duração total do pipeline: ${currentBuild.durationString}",
-                            status: "Sucesso",
-                            color: "#99C712"
-                    }
-                }
-            }
-        }
-
-        stage('Deploy to Prod') {
+        stage('Ask if promote to Prod') {
             when {
                 beforeInput true
                 branch 'production'
             }
+            steps {
+                office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
+                    message: "Para aplicar a mudança em produção, acesse [Janela de 10 minutos]: ${JOB_URL}",
+                    status: "Alerta",
+                    color: "#FFB818"
 
-            stages {
-                stage('Ask if promote to Prod') {
-                    steps {
-                        office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
-                            message: "Para aplicar a mudança em produção, acesse [Janela de 10 minutos]: ${JOB_URL}",
-                            status: "Alerta",
-                            color: "#FFB818"
+                timeout(time: 10, unit: 'MINUTES') {
+                    input(id: "Deploy Gate", message: "Deploy em produção?", ok: 'Deploy')
+                }
+            }
+        }
 
-                        timeout(time: 10, unit: 'MINUTES') {
-                            input(id: "Deploy Gate", message: "Deploy em produção?", ok: 'Deploy')
-                        }
+        stage("Promote to Env") {
+            steps {
+                script {
+                    openshift.withCluster() {
+                        openshift.tag("${appName}:latest", "${appName}:${env.BRANCH_NAME}")
                     }
                 }
-                stage('Promote STAGE') {
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.tag("${appName}:dev", "${appName}:stage")
-                            }
-                        }
+
+            }
+        }
+
+        stage("Create Env") {
+            when {
+                expression {
+                    openshift.withCluster() {
+                        return !openshift.selector("dc", "${appName}-${env.BRANCH_NAME}").exists()
                     }
                 }
-                stage('Create STAGE') {
-                    when {
-                        expression {
-                            openshift.withCluster() {
-                                return !openshift.selector('dc', '${appName}-stage').exists()
-                            }
-                        }
-                    }
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.newApp("${appName}:stage", "--name=${appName}-stage").narrow('svc').expose()
-                            }
-                        }
+
+            }
+            steps {
+                script {
+                    openshift.withCluster() {
+                        openshift.newApp("${appName}:latest", "--name=${appName}-${env.BRANCH_NAME}").narrow('svc').expose()
                     }
                 }
+
+            }
+        }
+
+        stage('Send message to Channel') {
+            steps {
+                office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
+                    message: "A Aplicação foi implantada em ambiente de ${env.BRANCH_NAME}"+
+                             "<br>Duração total do pipeline: ${currentBuild.durationString}",
+                    status: "Sucesso",
+                    color: "#99C712"
             }
         }
     }
