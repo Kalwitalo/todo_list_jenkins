@@ -9,8 +9,8 @@ pipeline {
 
         stage('Build') {
             steps {
-                pom = readMavenPom file: 'pom.xml'
-                env.appJarName = pom.artifactId + "-" + pom.version
+                def pom = readMavenPom file: 'pom.xml'
+                ${appJarName} = pom.artifactId + "-" + pom.version
                 sh 'mvn clean package -DskipTests=true'
                 archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
             }
