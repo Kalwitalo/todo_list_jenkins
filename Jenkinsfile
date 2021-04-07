@@ -36,14 +36,14 @@ pipeline {
             when {
                 expression {
                     openshift.withCluster() {
-                        return !openshift.selector("bc", "${appName}").exists()
+                        return !openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").exists()
                     }
                 }
             }
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.newBuild("--name=${appName}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
+                        openshift.newBuild("--name=${appName}-${env.BRANCH_NAME}", "--image-stream=redhat-openjdk18-openshift:1.5", "--binary")
                     }
                 }
 
@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.selector("bc", "${appName}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
+                        openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
                     }
                 }
 
@@ -78,17 +78,6 @@ pipeline {
             }
         }
 
-        stage("Promote to Env") {
-            steps {
-                script {
-                    openshift.withCluster() {
-                        openshift.tag("${appName}:latest", "${appName}:${env.BRANCH_NAME}")
-                    }
-                }
-
-            }
-        }
-
         stage("Create Env") {
             when {
                 expression {
@@ -101,7 +90,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.newApp("${appName}:latest", "--name=${appName}-${env.BRANCH_NAME}").narrow('svc').expose()
+                        openshift.newApp("${appName}:${env.BRANCH_NAME}", "--name=${appName}-${env.BRANCH_NAME}").narrow('svc').expose()
                     }
                 }
 
