@@ -24,7 +24,8 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.withProject("todolist-test") {
+                        openshift.withProject() {
+                            openshift.selector("project", "todolist-test");
                             echo "Using project: ${openshift.project()} in cluster ${openshift.cluster()}"
                         }
                     }
