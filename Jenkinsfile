@@ -61,7 +61,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Prod') {
+        stage('Deploy to Dev') {
 
             stages {
                 stage('Promote to DEV') {
