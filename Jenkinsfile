@@ -63,7 +63,7 @@ pipeline {
 
         stage('Deploys') {
              parallel ([
-                stage('Deploy to Dev') {
+                "Deploy to Dev": {
 
                     when {
                         beforeInput true
@@ -121,7 +121,7 @@ pipeline {
 
 
 
-                stage('Deploy to Prod') {
+               "Deploy to Prod": {
                     when {
                         beforeInput true
                         branch 'production'
