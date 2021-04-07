@@ -114,12 +114,6 @@ pipeline {
 
             stages {
                 stage('Ask if promote to Prod') {
-                    steps {
-                        office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
-                            message: "Para aplicar a mudança em produção, acesse [Janela de 10 minutos]: ${JOB_URL}",
-                            status: "Alerta",
-                            color: "#FFB818"
-                    }
 
                     steps {
                         timeout(time: 10, unit: 'MINUTES') {
