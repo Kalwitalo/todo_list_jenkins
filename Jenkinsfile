@@ -122,7 +122,7 @@ pipeline {
 
                         timeout(time: 10, unit: 'MINUTES') {
                             input {
-                                message "Deploy to production?"
+                                message "Deploy to production?",
                                 id "simple-input"
                             }
                         }
