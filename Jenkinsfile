@@ -78,7 +78,7 @@ pipeline {
             }
         }
 
-        stage("Promote to ${env.BRANCH_NAME}") {
+        stage("Promote to Env") {
             steps {
                 script {
                     openshift.withCluster() {
@@ -89,7 +89,7 @@ pipeline {
             }
         }
 
-        stage("Create ${env.BRANCH_NAME}") {
+        stage("Create Env") {
             when {
                 expression {
                     openshift.withCluster() {
