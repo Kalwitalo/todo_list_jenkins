@@ -63,44 +63,46 @@ pipeline {
 
         stage('Deploy to Dev') {
 
-            stages {
-                stage('Promote to DEV') {
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.tag("${appName}:latest", "${appName}:dev")
+            steps {
+                stages {
+                    stage('Promote to DEV') {
+                        steps {
+                            script {
+                                openshift.withCluster() {
+                                    openshift.tag("${appName}:latest", "${appName}:dev")
+                                }
                             }
+
                         }
-
                     }
-                }
 
-                stage('Create DEV') {
-                    when {
-                        expression {
-                            openshift.withCluster() {
-                                return !openshift.selector("dc", "${appName}-dev").exists()
+                    stage('Create DEV') {
+                        when {
+                            expression {
+                                openshift.withCluster() {
+                                    return !openshift.selector("dc", "${appName}-dev").exists()
+                                }
                             }
-                        }
 
-                    }
-                    steps {
-                        script {
-                            openshift.withCluster() {
-                                openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
+                        }
+                        steps {
+                            script {
+                                openshift.withCluster() {
+                                    openshift.newApp("${appName}:latest", "--name=${appName}-dev").narrow('svc').expose()
+                                }
                             }
+
                         }
-
                     }
-                }
 
-                stage('Send message to Channel') {
-                    steps {
-                        office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
-                            message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
-                                     "<br>Duração total do pipeline: ${currentBuild.durationString}",
-                            status: "Sucesso",
-                            color: "#99C712"
+                    stage('Send message to Channel') {
+                        steps {
+                            office365ConnectorSend webhookUrl: "${office365WebhookUrl}",
+                                message: "A Aplicação foi implantada em ambiente de desenvolvimento"+
+                                         "<br>Duração total do pipeline: ${currentBuild.durationString}",
+                                status: "Sucesso",
+                                color: "#99C712"
+                        }
                     }
                 }
             }
