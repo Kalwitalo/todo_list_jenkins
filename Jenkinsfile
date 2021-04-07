@@ -54,7 +54,7 @@ pipeline {
             steps {
                 script {
                     openshift.withCluster() {
-                        openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").startBuild("--from-file=target/${POM_DISPLAYNAME}.jar", "--wait")
+                        openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").startBuild("--from-file=target/${POM_ARTIFACTID}-${POM_VERSION}.jar", "--wait")
                     }
                 }
 
