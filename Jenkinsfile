@@ -67,7 +67,7 @@ pipeline {
             }
         }
 
-        stage('Ask if promote to Prod') {
+        /* stage('Ask if promote to Prod') {
             when {
                 beforeInput true
                 branch 'production'
@@ -82,7 +82,7 @@ pipeline {
                     input(id: "Deploy Gate", message: "Deploy em produção?", ok: 'Deploy')
                 }
             }
-        }
+        } */
 
         stage("Create Env") {
             when {
