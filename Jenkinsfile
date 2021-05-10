@@ -1,17 +1,16 @@
 pipeline {
-    agent none
+    agent {
+        node {
+            label 'maven'
+        }
+
+    }
     stages {
 
-
         stage('Build') {
-            agent {
-                label 'maven'
-            }
             steps {
-                container(name: 'jnlp') {
-                    sh 'mvn clean package -DskipTests=true'
-                    archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
-                }
+                sh 'mvn clean package -DskipTests=true'
+                archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
             }
         }
 
