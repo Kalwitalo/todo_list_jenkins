@@ -9,6 +9,7 @@ pipeline {
             steps {
                 container(name: 'maven38jdk8') {
                     sh 'mvn clean package -DskipTests=true'
+                    stash includes: 'target/*.jar', name: 'jar'
                     archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
                 }
             }
@@ -64,6 +65,7 @@ pipeline {
                 script {
                     openshift.withCluster() {
                         openshift.withProject("${projectOpenshiftName}") {
+                            unstash 'jar'
                             openshift.selector("bc", "${appName}-${env.BRANCH_NAME}").startBuild("--from-file=target/todo-list-jenkins-0.0.1-SNAPSHOT.jar", "--wait")
                         }
                     }
