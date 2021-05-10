@@ -4,7 +4,7 @@ pipeline {
 
         stage('Build') {
             agent {
-                label: "mavencustom"
+                label: 'mavencustom'
             }
             steps {
 
