@@ -1,13 +1,13 @@
 pipeline {
     agent none
+
     stages {
 
         stage('Build') {
             agent {
-                label: 'mavencustom'
+                label 'mavencustom'
             }
             steps {
-
                 container(name: 'maven38jdk8') {
                     sh 'mvn clean package -DskipTests=true'
                     archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
