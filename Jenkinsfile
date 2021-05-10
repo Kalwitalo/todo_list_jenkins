@@ -5,10 +5,10 @@ pipeline {
 
         stage('Build') {
             agent {
-                label 'mavencustom'
+                label 'maven'
             }
             steps {
-                container(name: 'maven38jdk8') {
+                container(name: 'jnlp') {
                     sh 'mvn clean package -DskipTests=true'
                     archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
                 }
