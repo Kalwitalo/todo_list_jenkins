@@ -1,11 +1,12 @@
 pipeline {
     agent any
     stages {
-        agent {
-            label 'mavencustom'
-        }
+
 
         stage('Build') {
+            agent {
+                label 'mavencustom'
+            }
             steps {
                 container(name: 'maven38jdk8') {
                     sh 'mvn clean package -DskipTests=true'
