@@ -4,10 +4,8 @@ pipeline {
 
         stage('Check Project') {
             steps {
-                script {
-                    docker.withServer() {
-                        echo "Teste"
-                    }
+                docker.withServer() {
+                    echo "Teste"
                 }
             }
         }
