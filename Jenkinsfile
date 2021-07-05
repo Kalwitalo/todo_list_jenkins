@@ -5,9 +5,9 @@ pipeline {
         stage('Check Project') {
             steps {
                 script {
-
+                    docker.withServer() {
                         sh "docker ps"
-
+                    }
                 }
             }
         }
