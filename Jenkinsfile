@@ -1,15 +1,13 @@
 pipeline {
-    agent {
-        dockerfile true
-    }
+    agent any
     stages {
 
         stage('Check Project') {
             steps {
                 script {
-                    docker.withServer() {
-                        echo "Teste"
-                    }
+
+                        sh "docker ps"
+
                 }
             }
         }
