@@ -14,13 +14,8 @@ public class HelloWorld {
         return "Hello World";
     }
 
-    @GetMapping("{message}")
-    public String helloWorldWithMessage(@PathVariable String message) {
-        return "Hello World " + message;
-    }
-
-    @GetMapping("/laerte")
+    @GetMapping("/albino")
     public String helloWorldLaerte() {
-        return "Hello World Laerte";
+        return "Hello World Albino, Fábio e Magno";
     }
 }
